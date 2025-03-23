@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, insert
 from sqlalchemy.orm import Session
 from data.tables import Base, Group, Content, PlayedContent, Subscription
 
@@ -18,15 +18,16 @@ class Database():
 
     def create_object(self, obj):
         with Session(self.engine) as session:
-            session.add(obj)
+            insert_stmt = type(obj).insert_stmt(obj)
+            session.execute(insert_stmt)
             session.commit()
     
-    def create_objects(self, objs):
+    def create_objects(self, objs, batch=100):
         with Session(self.engine) as session:
             session.add_all(objs)
             session.commit()
 
-    def retrieve_group(self, name):
+    def retrieve_object(self, obj):
         with Session(self.engine) as session:
-            stmt = select(Group).where(Group.name.match(name))
-            return session.scalar(stmt)
+            stmt = type(obj).select_stmt(obj)
+            return session.execute(stmt).scalars().first()
