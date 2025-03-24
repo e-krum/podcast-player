@@ -9,3 +9,7 @@ def main():
             feed_loader.subscribe(url)
         except:
             print('Invalid url provided / not an rss feed')
+
+
+if __name__ == "__main__":
+    main()

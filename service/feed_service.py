@@ -15,6 +15,12 @@ class FeedService:
 
     def save_obj(self, obj):
         self.database.create_object(obj)
+
+    def save_objs(self, objs):
+        self.database.create_objects(objs)
     
     def retrieve_obj(self, obj):
         return self.database.retrieve_object(obj)
+    
+    def retrieve_obj(self, type):
+        return self.database.retrieve_objects(type)

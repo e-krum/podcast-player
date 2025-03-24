@@ -31,3 +31,8 @@ class Database():
         with Session(self.engine) as session:
             stmt = type(obj).select_stmt(obj)
             return session.execute(stmt).scalars().first()
+        
+    def retrieve_objects(self, type):
+        with Session(self.engine) as session:
+            stmt = type.select_stmt()
+            return session.execute(stmt).scalars().all()
