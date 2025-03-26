@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine, select, insert
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from data.tables import Base, Group, Content, PlayedContent, Subscription
+from data.tables import Base
 
 class Database():
     def __new__(cls):
@@ -18,8 +18,8 @@ class Database():
 
     def create_object(self, obj):
         with Session(self.engine) as session:
-            insert_stmt = type(obj).insert_stmt(obj)
-            session.execute(insert_stmt)
+            upsert_stmt = type(obj).upsert_stmt(obj)
+            session.execute(upsert_stmt)
             session.commit()
     
     def create_objects(self, objs, batch=100):
@@ -27,12 +27,12 @@ class Database():
             session.add_all(objs)
             session.commit()
 
-    def retrieve_object(self, obj):
+    def retrieve_object(self, type, value):
         with Session(self.engine) as session:
-            stmt = type(obj).select_stmt(obj)
+            stmt = type.select_by_value_stmt(value)
             return session.execute(stmt).scalars().first()
         
     def retrieve_objects(self, type):
         with Session(self.engine) as session:
-            stmt = type.select_stmt()
+            stmt = type.select_page_stmt(type)
             return session.execute(stmt).scalars().all()

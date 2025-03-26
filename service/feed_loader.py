@@ -37,5 +37,11 @@ class FeedLoader:
         # remove all played content (gather list of ids of removed content)
         pass
 
+    def sync_subscription(self, id):
+        # take passed in id and check for new content from feed url
+        subscription = self.feed_service.retrieve_obj(Subscription, id)
+        feed = self.feed_service.retrieve_feed(subscription.feed_url)
+        
+        pass
 # https://feeds.acast.com/public/shows/b6085bcd-3542-4a43-b6a8-021e3fd251b8
 # https://friendsatthetable.net/rss
