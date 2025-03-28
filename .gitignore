@@ -175,5 +175,4 @@ cython_debug/
 *.sqlite3
 
 # Debug launch
-.vscode/*
 .vscode/launch.json

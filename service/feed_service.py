@@ -16,11 +16,14 @@ class FeedService:
     def save_obj(self, obj):
         self.database.create_object(obj)
 
-    def save_objs(self, objs):
-        self.database.create_objects(objs)
+    def save_objs(self, obj_type, objs):
+        self.database.create_objects(obj_type, objs)
     
-    def retrieve_obj(self, type, value):
-        return self.database.retrieve_object(type, value)
+    def retrieve_obj(self, obj_type, value):
+        return self.database.retrieve_object(obj_type, value)
     
-    def retrieve_objs(self, type):
-        return self.database.retrieve_objects(type)
+    def retrieve_objs(self, obj_type):
+        return self.database.retrieve_objects(obj_type)
+    
+    def retrieve_content(self, obj_type, subscription_id):
+        return self.database.retrieve_content(obj_type, subscription_id)

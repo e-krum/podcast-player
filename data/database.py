@@ -1,4 +1,6 @@
+import itertools
 from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from data.tables import Base
 
@@ -18,21 +20,37 @@ class Database():
 
     def create_object(self, obj):
         with Session(self.engine) as session:
-            upsert_stmt = type(obj).upsert_stmt(obj)
-            session.execute(upsert_stmt)
-            session.commit()
+            try:
+                upsert_stmt = type(obj).upsert_stmt(obj)
+                session.execute(upsert_stmt)
+                session.commit()
+            except SQLAlchemyError as error:
+                print(f'Unable to create objects due to {type(error)}')
     
-    def create_objects(self, objs, batch=100):
+    def create_objects(self, obj_type, objs, batch_size=100):
         with Session(self.engine) as session:
-            session.add_all(objs)
-            session.commit()
+            try:
+                for obj in objs:
+                    upsert_stmt = obj_type.upsert_stmt(obj)
+                    session.execute(upsert_stmt)
+                session.commit()
+            except SQLAlchemyError as error:
+                print(f'Unable to create objects due to {type(error)}')
 
-    def retrieve_object(self, type, value):
+    def retrieve_object(self, obj_type, value):
         with Session(self.engine) as session:
-            stmt = type.select_by_value_stmt(value)
-            return session.execute(stmt).scalars().first()
+            try:
+                stmt = obj_type.select_by_value_stmt(value)
+                return session.execute(stmt).scalars().first()
+            except SQLAlchemyError as error:
+                print(f'Unable to create objects due to {type(error)}')
         
-    def retrieve_objects(self, type):
+    def retrieve_objects(self, obj_type):
         with Session(self.engine) as session:
-            stmt = type.select_page_stmt(type)
+            stmt = obj_type.select_page_stmt(obj_type)
+            return session.execute(stmt).scalars().all()
+        
+    def retrieve_content(self, obj_type, subscription_id):
+        with Session(self.engine) as session:
+            stmt = obj_type.select_by_subscription_stmt(subscription_id)
             return session.execute(stmt).scalars().all()
