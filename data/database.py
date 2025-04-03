@@ -54,3 +54,22 @@ class Database():
         with Session(self.engine) as session:
             stmt = obj_type.select_by_subscription_stmt(subscription_id)
             return session.execute(stmt).scalars().all()
+    
+    def delete_objs(self, obj_type, value):
+        with Session(self.engine) as session:
+            stmt = obj_type.delete_stmt(obj_type, value)
+            ids = session.execute(stmt).scalars().all()
+            # session.commit()
+            return ids
+        
+    def delete_content(self, obj_type, group_id, subscription_id):
+        with Session(self.engine) as session:
+            stmt = obj_type.delete_by_ids_stmt(group_id, subscription_id)
+            session.execute(stmt)
+            session.commit()
+
+    def update_content(self, obj_type, content):
+        with Session(self.engine) as session:
+            stmt = obj_type.update_progress(content)
+            session.execute(stmt)
+            session.commit()

@@ -36,7 +36,7 @@ class Content(Base):
         )
     
     def update_progress(self):
-        return update(Content).values(timestamp=self.timestamp, finished=self.finished).where(id=self.id)  
+        return update(Content).values(timestamp=self.timestamp, finished=self.finished).where(url=self.url)  
 
     def select_by_value_stmt(title):
         return select(Content).where(Content.title == title)
@@ -102,4 +102,4 @@ class Subscription(Base):
         return select(type(self)).limit(limit).offset(offset)
 
     def delete_stmt(self, feed_url):
-        return delete(type(self)).where(Subscription.feed_url == feed_url).returning(Subscription.feed_url)
+        return delete(type(self)).where(Subscription.feed_url == feed_url).returning(Subscription.id, Subscription.group_id)

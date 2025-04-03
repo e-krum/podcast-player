@@ -58,9 +58,9 @@ class FeedLoader:
     
     def unsubscribe(self, url):
         # remove subscription from table
+        ids = self.feed_service.delete_objs(Subscription, url)
         # remove all content tied to subscription
-        # remove all played content (gather list of ids of removed content)
-        pass
+        self.feed_service.delete_content(Content, ids.group_id, ids.subscription_id)
 
     # update last entry in subscription
     def update_subscription(self, subscription, publish_date):

@@ -27,3 +27,12 @@ class FeedService:
     
     def retrieve_content(self, obj_type, subscription_id):
         return self.database.retrieve_content(obj_type, subscription_id)
+    
+    def delete_objs(self, obj_type, value):
+        return self.database.delete_objs(obj_type, value)
+
+    def delete_content(self, obj_type, group_id, subscription_id):
+        self.database.delete_content(obj_type, group_id, subscription_id)
+
+    def update_content(self, obj_type, content):
+        self.database.update_content(obj_type, content)
