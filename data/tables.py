@@ -85,6 +85,9 @@ class Subscription(Base):
     feed_url: Mapped[str] = mapped_column(unique=True)
     last_item_date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
+    def __str__(self):
+        return '{title}: {feed_url}'.format(title=self.title, feed_url=self.feed_url)
+
     def upsert_stmt(self):
         stmt = insert(Subscription).values(title=self.title, group_id=self.group_id, feed_url=self.feed_url, last_item_date=self.last_item_date)
         return stmt.on_conflict_do_update(
@@ -103,3 +106,22 @@ class Subscription(Base):
 
     def delete_stmt(self, feed_url):
         return delete(type(self)).where(Subscription.feed_url == feed_url).returning(Subscription.id, Subscription.group_id)
+
+    
+class UserSettings(Base):
+    __tablename__ = 'user_settings'
+
+    id: Mapped[str] = mapped_column(primary_key=True, default='user', unique=True)
+    auto_sync: Mapped[bool] = mapped_column(default=False)
+    volume: Mapped[float] = mapped_column(default=0.5)
+    display_images: Mapped[bool] = mapped_column(default=True)
+
+    def upsert_stmt():
+        stmt = insert(UserSettings).values()
+        return stmt.on_conflict_do_nothing()
+
+    def update_settings(self):
+        return update(UserSettings).values(auto_sync=self.auto_sync, volume=self.volume, display_images=self.display_images)
+
+    def select_by_value_stmt(user_id):
+        return select(UserSettings).where(UserSettings.id == user_id)

@@ -36,3 +36,9 @@ class FeedService:
 
     def update_content(self, obj_type, content):
         self.database.update_content(obj_type, content)
+
+    def create_user_settings(self, obj_type):
+        self.database.create_user_settings(obj_type)
+
+    def update_user_settings(self, obj_type, obj):
+        self.database.update_user_settings(obj_type, obj)

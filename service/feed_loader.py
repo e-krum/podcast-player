@@ -1,12 +1,24 @@
 from service.feed_service import FeedService
-from data.tables import Group, Content, Subscription
+from data.tables import Group, Content, Subscription, UserSettings
 from datetime import datetime
 from time import mktime
-# import ffmpeg
+import util.util as util
 
 class FeedLoader:
     def __init__(self):
         self.feed_service = FeedService()
+
+    def create_user_settings(self):
+        self.feed_service.create_user_settings(UserSettings)
+
+    def update_user_settings(self, settings):
+        settings.auto_sync = util.validate_boolean('Auto sync feeds? True / False: ')
+        settings.volume = util.validate_float('Enter volume from 0 to 1: ', 0, 1)
+        settings.display_images = util.validate_boolean('Display images? True or False: ')
+        self.feed_service.update_user_settings(UserSettings, settings)
+    
+    def retrieve_user_settings(self):
+        return self.feed_service.retrieve_obj(UserSettings, 'user')
 
     def retrieve_feed(self, url):
         return self.feed_service.retrieve_feed(url)
@@ -70,10 +82,13 @@ class FeedLoader:
     def sync_subscription(self, url):
         # take passed in id and check for new content from feed url
         subscription = self.feed_service.retrieve_obj(Subscription, url)
-        feed = self.feed_service.retrieve_feed(subscription.feed_url)
+        feed = self.retrieve_feed(subscription.feed_url)
         entries = [entry for entry in feed.entries if datetime.fromtimestamp(mktime(entry.published_parsed)) > subscription.last_item_date]
         self.process_feed_entries(subscription, entries)
-        pass
+
+    def sync_all(self):
+        subscriptions = self.feed_service.retrieve_objs(Subscription)
+        [self.sync_subscription(subscription.url) for subscription in subscriptions]
 
     def process_feed_entries(self, subscription, entries):
         content = self.build_content(entries, subscription.group_id, subscription.id)

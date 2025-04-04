@@ -73,3 +73,15 @@ class Database():
             stmt = obj_type.update_progress(content)
             session.execute(stmt)
             session.commit()
+
+    def create_user_settings(self, obj_type):
+        with Session(self.engine) as session:
+            stmt = obj_type.upsert_stmt()
+            session.execute(stmt)
+            session.commit()
+
+    def update_user_settings(self, obj_type, obj):
+        with Session(self.engine) as session:
+            stmt = obj_type.update_settings(obj)
+            session.execute(stmt)
+            session.commit()
