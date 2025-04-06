@@ -55,6 +55,23 @@ class FeedLoader:
         content.sort(key=Content.sort, reverse=True)
         return content
     
+    
+    def list_content(self, subscription):
+        content = self.feed_service.retrieve_content(Content, subscription.id)
+        return self.paginate_select_content(content, 0, 20 if len(content) >= 20 else len(content))
+
+    def paginate_select_content(self, content, start, end):
+        while True:
+            [print('{0})'.format(i+1), content[i]) for i in range(start, end)]
+            if not end >= len(content) and util.validate_boolean('Next page? y or n: '):
+                start = end
+                end = end + 20 if end + 20 <= len(content) else len(content)
+            else:
+                if util.validate_boolean('Want to select an episode? y or n: '):
+                    idx = util.validate_int('Select an episode number: ', 0, len(content))
+                    return (content[idx - 1], content)
+                else: break
+
     def subscribe(self, url):
         feed = self.retrieve_feed(url)
         if False == feed.bozo:
@@ -66,7 +83,9 @@ class FeedLoader:
                     self.process_feed_entries(subscription, feed.entries)
     
     def list_subscriptions(self):
-        return self.feed_service.retrieve_objs(Subscription)
+        subscriptions = self.feed_service.retrieve_objs(Subscription)
+        [print('{0}.'.format(i+1), subscriptions[i]) for i in range(0, len(subscriptions))]
+        return subscriptions
     
     def unsubscribe(self, url):
         # remove subscription from table
@@ -88,11 +107,11 @@ class FeedLoader:
 
     def sync_all(self):
         subscriptions = self.feed_service.retrieve_objs(Subscription)
-        [self.sync_subscription(subscription.url) for subscription in subscriptions]
+        [self.sync_subscription(subscription.feed_url) for subscription in subscriptions]
 
     def process_feed_entries(self, subscription, entries):
         content = self.build_content(entries, subscription.group_id, subscription.id)
         self.create_content(Content, content)
-        self.update_subscription(subscription, content[0].publish_date)
+        if len(content) > 0: self.update_subscription(subscription, content[0].publish_date)
 # https://feeds.acast.com/public/shows/b6085bcd-3542-4a43-b6a8-021e3fd251b8
 # https://friendsatthetable.net/rss

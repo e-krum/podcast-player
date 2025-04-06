@@ -23,6 +23,13 @@ class Content(Base):
     timestamp: Mapped[int] = mapped_column(nullable=True)
     finished: Mapped[bool] = mapped_column(default=False)
 
+    def __str__(self):
+        return '''
+{date} - {title}
+{url}
+Started: {started}
+        '''.format(date=self.publish_date, title=self.title, url=self.url, started=self.timestamp is not None)
+
     def upsert_stmt(self):
         stmt = insert(Content).values(group_id=self.group_id, subscription_id=self.subscription_id, title=self.title, url=self.url, length=self.length, publish_date=self.publish_date)
         return stmt.on_conflict_do_update(
@@ -45,10 +52,10 @@ class Content(Base):
         return select(Content).where(Content.subscription_id == subscription_id).order_by(Content.publish_date.desc())
 
     def select_page_stmt(self, subscription_id, limit=20, offset=0):
-        return select(type(self)).where(Content.subscription_id == subscription_id).limit(limit).offset(offset).order_by(Content.publish_date.desc())
+        return select(Content).where(Content.subscription_id == subscription_id).limit(limit).offset(offset).order_by(Content.publish_date.desc())
     
     def delete_by_ids_stmt(self, group_id, subscription_id):
-        return delete(type(self)).where(Content.group_id == group_id and Content.subscription_id == subscription_id)
+        return delete(Content).where(Content.group_id == group_id and Content.subscription_id == subscription_id)
     
     @staticmethod
     def sort(obj):
@@ -71,10 +78,10 @@ class Group(Base):
         return select(Group).where(Group.name == name)
     
     def select_page_stmt(self, limit=20, offset=0):
-        return select(self).limit(limit).offset(offset)
+        return select(Group).limit(limit).offset(offset)
     
     def delete_stmt(self, name):
-        return delete(type(self)).where(Group.name == name).returning(Group.id)
+        return delete(Group).where(Group.name == name).returning(Group.id)
 
 class Subscription(Base):
     __tablename__ = 'subscriptions'
@@ -102,10 +109,10 @@ class Subscription(Base):
         return select(Subscription).where(Subscription.feed_url == url)
     
     def select_page_stmt(self, limit=20, offset=0):
-        return select(type(self)).limit(limit).offset(offset)
+        return select(Subscription).limit(limit).offset(offset)
 
     def delete_stmt(self, feed_url):
-        return delete(type(self)).where(Subscription.feed_url == feed_url).returning(Subscription.id, Subscription.group_id)
+        return delete(Subscription).where(Subscription.feed_url == feed_url).returning(Subscription.id, Subscription.group_id)
 
     
 class UserSettings(Base):

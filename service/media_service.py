@@ -1,9 +1,26 @@
 import vlc, time
+import util.util as util
+from pynput.keyboard import Key, Listener
 
 class MediaService():
     def __init__(self):
         self.player = vlc.MediaPlayer()
+        # self.listener = Listener(on_press=self.media_input)
 
+    def media_input(self, key):
+        if key == Key.esc:
+            self.stop_listener()
+        if key == Key.left:
+            print('left')
+        if key == Key.right:
+            print('right')
+
+    def start_listener(self):
+        self.listener.join()
+    
+    def stop_listener(self):
+        self.listener.stop()
+        
     def set_audio(self, url):
         media = vlc.Media(url)
         self.player.set_media(media)
@@ -13,7 +30,7 @@ class MediaService():
         and sets player position based off their values
         
         .. note:: If pos is not 0, use pos to set current position"""
-        if pos == 0: pos = timestamp / length
+        if timestamp is not None: pos = timestamp / length
         self.player.play()
         self.player.set_position(pos)
 
@@ -37,14 +54,18 @@ class MediaService():
             pos = new_time / self.player.get_length()
             self.player.set_position(pos)
 
+    def play_loop(self, content):
+        self.set_audio(content.url)
+        self.play_audio(timestamp=content.timestamp)
+        self.start_listener()
+        # while True:
+
 # player = vlc.MediaPlayer('https://traffic.libsyn.com/secure/friendsatthetable/fatt_intro_2020.mp3?dest-id=550849')
 
-media_service = MediaService()
-media_service.set_audio('https://traffic.libsyn.com/secure/friendsatthetable/fatt_intro_2020.mp3?dest-id=550849')
-media_service.play_audio(pos=0.2)
-time.sleep(1)
-# timestamp = media_service.get_curr_timestamp()
+# media_service = MediaService()
+# media_service.set_audio('https://traffic.libsyn.com/secure/friendsatthetable/fatt_intro_2020.mp3?dest-id=550849')
+# media_service.play_audio(pos=0.2)
+# time.sleep(1)
+# # timestamp = media_service.get_curr_timestamp()
 
 
-
-time.sleep(60)
