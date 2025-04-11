@@ -173,3 +173,6 @@ cython_debug/
 # Database
 *.db
 *.sqlite3
+
+# Debug launch
+.vscode/launch.json
